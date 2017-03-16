@@ -117,14 +117,19 @@ func (s *Session) Run() (err error) {
 	return s.Wait()
 }
 
-func (s *Session) Output() (out []byte, err error) {
+func (s *Session) Output() (stdout, stderr []byte, err error) {
 	oldout := s.Stdout
+	olderr := s.Stderr
 	defer func() {
 		s.Stdout = oldout
+		s.Stderr = olderr
 	}()
-	stdout := bytes.NewBuffer(nil)
-	s.Stdout = stdout
+	outbuf := bytes.NewBuffer(nil)
+	errbuf := bytes.NewBuffer(nil)
+	s.Stdout = outbuf
+	s.Stderr = errbuf
 	err = s.Run()
-	out = stdout.Bytes()
+	stdout = outbuf.Bytes()
+	stderr = errbuf.Bytes()
 	return
 }
